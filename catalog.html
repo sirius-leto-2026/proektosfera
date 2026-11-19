@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ПроектоСфера — каталог</title>
+<link rel="stylesheet" href="css/style.css?v=3">
+<script src="data/stands.js?v=4"></script>
+</head>
+<body data-mode="catalog">
+<div class="wrap">
+  <h1 style="color:#1b2a52">ПроектоСфера — каталог проектов</h1>
+  <p>Режим списка для слабых устройств и контрольная версия для сравнения с 3D-павильоном.
+    <a class="btn" href="index.html">3D-павильон</a>
+    <button class="btn" onclick="showStats()">Статистика</button>
+    <button class="btn" onclick="exportStats()">Выгрузить статистику (JSON)</button></p>
+  <div id="list"></div>
+</div>
+<p class="foot"><a href="privacy.html">Правила и конфиденциальность</a></p>
+<div id="modal" hidden></div>
+<script src="js/common.js?v=3"></script>
+<script>
+const list = document.getElementById("list");
+HALLS.forEach(h => {
+  const sec = document.createElement("section");
+  sec.innerHTML = `<h2>${h.name}</h2><div class="grid"></div>`;
+  STANDS.filter(s => s.hall === h.id).forEach(s => {
+    const b = document.createElement("button");
+    b.className = "item"; b.style.borderLeftColor = s.color;
+    b.innerHTML = `<b>${s.title}</b><small>${s.team}</small>`;
+    b.onclick = () => openStand(s.id);
+    sec.querySelector(".grid").appendChild(b);
+  });
+  list.appendChild(sec);
+});
+</script>
+</body>
+</html>
