@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ПроектоСфера — презентация стенда</title><link rel="stylesheet" href="css/style.css?v=5">
+<style>body{background:#eef3f7;margin:0}.deck{max-width:860px;margin:0 auto;padding:16px}
+.slide{background:#fff;border-radius:14px;min-height:380px;padding:36px 40px;border-top:10px solid var(--c);display:flex;flex-direction:column;justify-content:center}
+.slide h1{color:var(--navy);font-size:34px;margin:0 0 12px}.slide h2{color:var(--navy);font-size:26px;margin:0 0 14px}.slide p,.slide li{font-size:20px;line-height:1.5}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:12px}.note{color:var(--muted);font-size:14px;margin-top:10px}</style></head>
+<body data-mode="info"><div class="deck"><div class="slide" id="sl" aria-live="polite"></div>
+<div class="nav"><button class="btn" id="pv" aria-label="Предыдущий слайд">← Назад</button><span id="pg"></span><button class="btn" id="nx" aria-label="Следующий слайд">Вперёд →</button></div>
+<p class="note">Демо-презентация собрана автоматически из карточки стенда. Когда автор загрузит свою презентацию, кнопка на стенде откроет её. <a href="index.html">← К выставке</a></p></div>
+<script src="data/stands.js?v=5"></script><script>
+const id=new URLSearchParams(location.search).get("id"), s=STANDS.find(x=>x.id===id)||STANDS[0], h=(HALLS.find(x=>x.id===s.hall)||{}).name||"";
+document.title=s.title+" — презентация"; document.querySelector(".slide").style.setProperty("--c",s.color);
+const slides=[`<p style="color:${s.color};font-weight:700;text-transform:uppercase;letter-spacing:.06em">${h}</p><h1>${s.title}</h1><p>${s.team} · ${s.school}</p>`,
+`<h2>О проекте</h2><p>${s.text}</p>`,
+`<h2>Что есть на стенде</h2><ul><li>Описание проекта и команда</li><li>Презентация, видео и продукт — по мере загрузки автором</li><li>Кнопка «Нравится» и вопрос автору</li></ul>`,
+`<h2>Спасибо за внимание!</h2><p>Задайте вопрос команде «${s.team.replace(/^Команда /,"")}» прямо на стенде выставки «ПроектоСфера».</p>`];
+let i=0;const show=()=>{sl.innerHTML=slides[i];pg.textContent=(i+1)+" / "+slides.length;pv.disabled=i==0;nx.disabled=i==slides.length-1};
+pv.onclick=()=>{if(i>0){i--;show()}};nx.onclick=()=>{if(i<slides.length-1){i++;show()}};
+const auto=new URLSearchParams(location.search).get("auto");
+if(auto){document.querySelector(".note").insertAdjacentHTML("afterbegin","<b>Демо-ролик:</b> слайды листаются сами каждые 4 секунды. ");setInterval(()=>{i=(i+1)%slides.length;show()},4000)}
+document.addEventListener("keydown",e=>{if(e.key=="ArrowRight")nx.click();if(e.key=="ArrowLeft")pv.click()});show();
+</script></body></html>

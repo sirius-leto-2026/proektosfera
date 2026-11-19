@@ -5,7 +5,7 @@
   const save = (v) => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {} };
 
   const mode = document.body.dataset.mode;           // "3d" или "catalog"
-  const visit = { mode, start: Date.now(), end: Date.now(), opened: [], likes: [] };
+  const visit = { mode, start: Date.now(), end: Date.now(), opened: [], likes: [], questions: [] };
   const all = load(); all.push(visit);
   const flush = () => { visit.end = Date.now(); save(all); };
   setInterval(flush, 5000);
@@ -20,16 +20,33 @@
     flush();
     const link = (url, label) => url
       ? `<a class="btn" href="${url}" target="_blank" rel="noopener">${label}</a>`
-      : `<span class="btn off" title="Материал не загружен">${label}</span>`;
+      : `<span class="btn off" title="Автор добавит материал позже">${label} — скоро</span>`;
+    const pres = s.links.presentation || `present.html?id=${encodeURIComponent(s.id)}`;
+    const ask = s.links.question
+      ? link(s.links.question, "Вопрос автору")
+      : `<button class="btn" onclick="document.getElementById('askf').hidden=false;this.hidden=true">Вопрос автору</button>`;
     const box = document.getElementById("modal");
     box.innerHTML = `<div class="card" role="dialog" aria-modal="true" aria-label="${s.title}">
       <button class="x" onclick="closeStand()" aria-label="Закрыть">×</button>
       <div class="hall" style="border-left:5px solid ${s.color};padding-left:7px">${hallName(s.hall)}</div>
       <h2>${s.title}</h2><div class="meta">${s.team} · ${s.school}</div><p>${s.text}</p>
-      <div class="btns">${link(s.links.presentation, "Презентация")}${link(s.links.video, "Видео")}${link(s.links.product, "Продукт")}${link(s.links.question, "Вопрос автору")}
-      <button class="btn like" onclick="likeStand('${s.id}', this)">${visit.likes.includes(s.id) ? "♥ Нравится" : "♡ Нравится"}</button></div></div>`;
+      <div class="btns">${link(pres, "Презентация")}${link(s.links.video, "Видео")}${link(s.links.product, "Продукт")}${ask}
+      <button class="btn like" onclick="likeStand('${s.id}', this)">${visit.likes.includes(s.id) ? "♥ Нравится" : "♡ Нравится"}</button></div>
+      <form id="askf" class="ask" hidden onsubmit="return askAuthor(event, '${s.id}')">
+        <label for="askq">Ваш вопрос команде (без имени и контактов)</label>
+        <textarea id="askq" rows="3" maxlength="500" required></textarea>
+        <label class="chk"><input type="checkbox" required> Мне есть 14 лет или родитель знает о вопросе; вопрос будет передан автору стенда</label>
+        <button class="btn" type="submit">Отправить</button>
+      </form></div>`;
     box.hidden = false;
     box.querySelector(".x").focus();
+  };
+  window.askAuthor = function (e, id) {
+    e.preventDefault();
+    const q = document.getElementById("askq").value.trim();
+    if (q) { visit.questions.push({ stand: id, text: q, at: new Date().toISOString() }); flush(); }
+    e.target.innerHTML = "<p><b>Спасибо!</b> Вопрос сохранён и попадёт к автору вместе с выгрузкой статистики.</p>";
+    return false;
   };
   window.closeStand = () => { document.getElementById("modal").hidden = true; };
   window.likeStand = (id, el) => { if (!visit.likes.includes(id)) visit.likes.push(id); el.textContent = "♥ Нравится"; flush(); };
