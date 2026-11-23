@@ -3,46 +3,74 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ПроектоСфера — 3D-выставка</title>
-<link rel="stylesheet" href="css/style.css?v=5">
-<script src="https://cdn.jsdelivr.net/npm/aframe@1.6.0/dist/aframe-master.min.js"></script>
-<script src="data/stands.js?v=5"></script>
+<title>ПроектоСфера — 3D-выставка проектов</title>
+<meta name="description" content="Виртуальная 3D-выставка учебных проектов программы «Сириус.Лето»: 15 демонстрационных стендов в трёх залах. Ходите по павильону или смотрите каталог.">
+<meta name="theme-color" content="#1b2a52">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://sirius-leto-2026.github.io/proektosfera/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:site_name" content="ПроектоСфера">
+<meta property="og:title" content="ПроектоСфера — 3D-выставка проектов">
+<meta property="og:description" content="3D-выставка учебных проектов: 15 стендов в трёх залах. Ходите по виртуальному павильону, открывайте карточки и задавайте вопросы авторам.">
+<meta property="og:url" content="https://sirius-leto-2026.github.io/proektosfera/">
+<meta property="og:image" content="https://sirius-leto-2026.github.io/proektosfera/cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ПроектоСфера — виртуальная 3D-выставка учебных проектов">
+<link rel="stylesheet" href="css/style.css?v=6">
 </head>
 <body data-mode="3d">
 
-<div class="panel top">
-  <h1>ПроектоСфера</h1>
-  <div class="halls" id="halls" aria-label="Перейти в зал"></div>
-  <label>Поиск <input id="q" placeholder="название или команда"></label>
-  <label>Направление <select id="f"><option value="">все залы</option></select></label>
-  <ul id="results"></ul>
-  <a class="btn" href="catalog.html">Режим списка</a>
-  <button class="btn" onclick="showStats()">Статистика</button>
+<a class="skip" href="catalog.html">Перейти к списку стендов (без 3D)</a>
+<noscript><div class="notice">Для 3D-павильона нужен JavaScript. <a href="catalog.html">Открыть каталог стендов</a> — он работает и без сцены.</div></noscript>
+
+<div class="panel top" id="top">
+  <div class="top-head">
+    <h1>ПроектоСфера</h1>
+    <a class="top-link" href="catalog.html">Список</a>
+    <button class="top-toggle" id="top-toggle" type="button" aria-expanded="false" aria-controls="top-body" onclick="this.setAttribute('aria-expanded', this.closest('.top').classList.toggle('open'))">Фильтры</button>
+  </div>
+  <p class="lead">Виртуальная выставка <b id="n-stands">15</b> учебных проектов в <b id="n-halls">3</b> залах. Нажмите на стенд или найдите его поиском.</p>
+  <div class="top-body" id="top-body">
+    <nav class="halls" id="halls" aria-label="Залы павильона"></nav>
+    <label>Поиск <input id="q" type="search" placeholder="название или команда" autocomplete="off"></label>
+    <label>Направление <select id="f"><option value="">все залы</option></select></label>
+    <ul id="results" aria-live="polite" aria-label="Результаты поиска"></ul>
+    <p class="note" id="search-status" role="status"></p>
+    <a class="btn" href="catalog.html">Режим списка</a>
+    <button class="btn" type="button" onclick="showStats()">Статистика</button>
+  </div>
 </div>
 
-<canvas class="panel mini" id="mini" width="200" height="120" aria-label="Миникарта павильона"></canvas>
+<canvas class="panel mini" id="mini" width="200" height="120" role="img" aria-label="Схема павильона: три зала, красная точка — положение посетителя"></canvas>
 
-<div class="panel moves" aria-label="Перемещение">
-  <button data-m="left" aria-label="Повернуть налево">⟲</button>
-  <button data-m="fwd" aria-label="Вперёд">▲</button>
-  <button data-m="back" aria-label="Назад">▼</button>
-  <button data-m="right" aria-label="Повернуть направо">⟳</button>
+<div class="panel moves" role="group" aria-label="Управление движением">
+  <button data-m="left" type="button" aria-label="Повернуть налево">⟲</button>
+  <button data-m="fwd" type="button" aria-label="Вперёд">▲</button>
+  <button data-m="back" type="button" aria-label="Назад">▼</button>
+  <button data-m="right" type="button" aria-label="Повернуть направо">⟳</button>
 </div>
-<div class="panel help">WASD/стрелки — ходить, мышь с зажатой кнопкой — смотреть, клик по стенду — открыть. На телефоне — кнопки внизу и свайп.<br><a href="privacy.html">Правила и конфиденциальность</a></div>
+<div class="panel help">
+  <span class="desk">WASD/стрелки — ходить, мышь с зажатой кнопкой — смотреть, клик по стенду — открыть. На телефоне — кнопки внизу и свайп.<br><a href="privacy.html">Правила и конфиденциальность</a></span>
+  <span class="mob">Кнопки внизу — идти и поворачиваться, свайп по сцене — осмотреться. Нажмите на стенд, чтобы открыть карточку. <a href="privacy.html">Правила</a></span>
+</div>
 
 <div id="modal" hidden></div>
 
-<a-scene renderer="antialias: true" vr-mode-ui="enabled: false" cursor="rayOrigin: mouse" raycaster="objects: .stand">
+<a-scene renderer="antialias: true; physicallyCorrectLights: true" vr-mode-ui="enabled: false" cursor="rayOrigin: mouse" raycaster="objects: .stand" aria-label="3D-павильон выставки. Для навигации без сцены откройте каталог стендов.">
   <a-sky color="#dfeef5"></a-sky>
-  <a-entity light="type: ambient; intensity: 0.8"></a-entity>
-  <a-entity light="type: directional; intensity: 0.6" position="2 6 3"></a-entity>
+  <a-entity light="type: ambient; intensity: 2.5"></a-entity>
+  <a-entity light="type: directional; intensity: 1.9" position="2 6 3"></a-entity>
   <a-entity id="world"></a-entity>
   <a-entity id="rig" position="0 0 6">
     <a-entity id="cam" camera look-controls="pointerLockEnabled: false" wasd-controls="acceleration: 45" position="0 1.6 0"></a-entity>
   </a-entity>
 </a-scene>
 
-<script src="js/common.js?v=5"></script>
+<script src="https://cdn.jsdelivr.net/npm/aframe@1.6.0/dist/aframe-master.min.js"></script>
+<script src="data/stands.js?v=6"></script>
+<script src="js/common.js?v=6"></script>
 <script>
 // Геометрия павильона: залы стоят в ряд по оси X, стенды — по периметру зала.
 const HALL_W = 14, HALL_D = 12, GAP = 2;
@@ -105,26 +133,36 @@ function teleport(x, z, ry) {
   cam.components["look-controls"].pitchObject.rotation.x = 0;
 }
 const hallsBox = document.getElementById("halls"), f = document.getElementById("f");
+const closeTopPanel = () => {
+  const panel = document.getElementById("top");
+  if (!panel.classList.contains("open")) return;
+  panel.classList.remove("open");
+  const t = document.getElementById("top-toggle");
+  if (t) t.setAttribute("aria-expanded", "false");
+};
 HALLS.forEach((h, i) => {
-  const b = document.createElement("button"); b.textContent = h.name;
-  b.onclick = () => teleport(hallX(i), 4, 0); hallsBox.appendChild(b);
+  const b = document.createElement("button"); b.type = "button"; b.textContent = h.name;
+  b.onclick = () => { teleport(hallX(i), 4, 0); closeTopPanel(); }; hallsBox.appendChild(b);
   f.add(new Option(h.name, h.id));
 });
 function goStand(id) {
-  const p = pos[id], r = THREE.MathUtils.degToRad(p.ry);
+  const p = pos[id];
+  if (!p) { openStand(id); return; }
+  const r = THREE.MathUtils.degToRad(p.ry);
   teleport(p.x + Math.sin(r) * 2.5, p.z + Math.cos(r) * 2.5, p.ry);
   openStand(id);
 }
 
 // Поиск и фильтр
-const q = document.getElementById("q"), res = document.getElementById("results");
+const q = document.getElementById("q"), res = document.getElementById("results"), status = document.getElementById("search-status");
 function renderResults() {
   const t = q.value.trim().toLowerCase(), h = f.value;
   res.innerHTML = "";
-  if (!t && !h) return;
-  STANDS.filter(s => (!h || s.hall === h) && (!t || (s.title + " " + s.team).toLowerCase().includes(t)))
-    .forEach(s => { const li = document.createElement("li"), b = document.createElement("button");
-      b.textContent = s.title; b.onclick = () => goStand(s.id); li.appendChild(b); res.appendChild(li); });
+  if (!t && !h) { status.textContent = ""; return; }
+  const found = STANDS.filter(s => (!h || s.hall === h) && (!t || (s.title + " " + s.team).toLowerCase().includes(t)));
+  found.forEach(s => { const li = document.createElement("li"), b = document.createElement("button");
+    b.type = "button"; b.textContent = s.title; b.onclick = () => { closeTopPanel(); goStand(s.id); }; li.appendChild(b); res.appendChild(li); });
+  status.textContent = found.length ? `Найдено стендов: ${found.length}` : "Ничего не найдено — измените запрос или зал.";
 }
 q.oninput = f.onchange = renderResults;
 
@@ -150,7 +188,15 @@ function drawMini() {
   mini.fillStyle = "#be123c"; mini.beginPath(); mini.arc(mx(w.x), mz(w.z), 4, 0, 7); mini.fill();
   requestAnimationFrame(drawMini);
 }
-document.querySelector("a-scene").addEventListener("loaded", drawMini);
+const sceneEl = document.querySelector("a-scene");
+sceneEl.addEventListener("loaded", () => {
+  // Сцену можно выбрать клавишей Tab и ходить с клавиатуры.
+  if (sceneEl.canvas) {
+    sceneEl.canvas.tabIndex = 0;
+    sceneEl.canvas.setAttribute("aria-label", "3D-павильон. WASD или стрелки — движение, мышь — обзор. Список стендов доступен по ссылке «Перейти к списку стендов».");
+  }
+  drawMini();
+});
 </script>
 </body>
 </html>

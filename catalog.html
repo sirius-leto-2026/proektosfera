@@ -3,22 +3,38 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ПроектоСфера — каталог</title>
-<link rel="stylesheet" href="css/style.css?v=5">
-<script src="data/stands.js?v=5"></script>
+<title>Каталог стендов — ПроектоСфера</title>
+<meta name="description" content="Все стенды выставки «ПроектоСфера» списком: 15 демонстрационных проектов в трёх направлениях. Откройте карточку, чтобы узнать команду и описание.">
+<meta name="theme-color" content="#1b2a52">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://sirius-leto-2026.github.io/proektosfera/catalog.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:site_name" content="ПроектоСфера">
+<meta property="og:title" content="Каталог стендов — ПроектоСфера">
+<meta property="og:description" content="Все 15 стендов выставки списком, с командами и описаниями. Режим без 3D-сцены — для слабых устройств и чтения с экрана.">
+<meta property="og:url" content="https://sirius-leto-2026.github.io/proektosfera/catalog.html">
+<meta property="og:image" content="https://sirius-leto-2026.github.io/proektosfera/cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ПроектоСфера — виртуальная 3D-выставка учебных проектов">
+<link rel="stylesheet" href="css/style.css?v=6">
+<script src="data/stands.js?v=6"></script>
 </head>
 <body data-mode="catalog">
 <div class="wrap">
-  <h1 style="color:#1b2a52">ПроектоСфера — каталог проектов</h1>
-  <p>Режим списка для слабых устройств и контрольная версия для сравнения с 3D-павильоном.
+  <h1>Каталог проектов</h1>
+  <p class="catalog-intro">Те же <b id="n-stands">15</b> стендов в <b id="n-halls">3</b> залах, что и в <a href="index.html">3D-павильоне</a>, только списком — удобно читать с экрана, листать на слабом устройстве и открывать карточку без сцены. Стенды демонстрационные: проекты и команды придуманы для проверки прототипа.</p>
+  <div class="toolbar">
     <a class="btn" href="index.html">3D-павильон</a>
-    <button class="btn" onclick="showStats()">Статистика</button>
-    <button class="btn" onclick="exportStats()">Выгрузить статистику (JSON)</button></p>
+    <button class="btn" type="button" onclick="showStats()">Статистика</button>
+    <button class="btn" type="button" onclick="exportStats()">Выгрузить статистику (JSON)</button>
+  </div>
   <div id="list"></div>
 </div>
-<p class="foot"><a href="privacy.html">Правила и конфиденциальность</a></p>
+<p class="foot"><a href="index.html">3D-павильон</a> · <a href="privacy.html">Правила и конфиденциальность</a></p>
 <div id="modal" hidden></div>
-<script src="js/common.js?v=5"></script>
+<script src="js/common.js?v=6"></script>
 <script>
 const list = document.getElementById("list");
 HALLS.forEach(h => {
@@ -26,8 +42,9 @@ HALLS.forEach(h => {
   sec.innerHTML = `<h2>${h.name}</h2><div class="grid"></div>`;
   STANDS.filter(s => s.hall === h.id).forEach(s => {
     const b = document.createElement("button");
+    b.type = "button";
     b.className = "item"; b.style.borderLeftColor = s.color;
-    b.innerHTML = `<b>${s.title}</b><small>${s.team}</small>`;
+    b.innerHTML = `<b>${s.title}</b><small>${s.team} · ${s.school}</small><span class="desc">${s.text}</span>`;
     b.onclick = () => openStand(s.id);
     sec.querySelector(".grid").appendChild(b);
   });
