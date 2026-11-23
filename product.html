@@ -1,26 +1,118 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ПроектоСфера — продукт стенда</title><link rel="stylesheet" href="css/style.css?v=5">
-<style>body{background:#eef3f7;margin:0}main{max-width:760px;margin:0 auto;padding:16px}.box{background:#fff;border-radius:14px;padding:24px 28px;border-top:10px solid var(--c)}
-h1{color:var(--navy);margin:0 0 6px}.row{display:grid;grid-template-columns:170px 1fr 60px;gap:10px;align-items:center;margin:10px 0}
-.out{font-size:20px;font-weight:700;color:var(--navy);margin-top:14px}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #dbe3ea;padding:6px;text-align:left}
-.bar{height:14px;background:var(--c);border-radius:3px}.q button{display:block;margin:6px 0}.note{color:var(--muted);font-size:14px}</style></head>
-<body data-mode="info"><main><div class="box" id="box"></div>
-<p class="note">Демо-продукт: показывает, как стенд может вести на работающий результат проекта. Данные учебные, не измерения. <a href="index.html">← К выставке</a></p></main>
-<script src="data/stands.js?v=5"></script><script>
-const id=new URLSearchParams(location.search).get("id"), s=STANDS.find(x=>x.id===id)||STANDS[0];
-box.style.setProperty("--c",s.color); document.title=s.title+" — продукт";
-let html=`<h1>${s.title}</h1><p class="note">${s.team} · ${s.school}</p>`;
-if(id==="s01"){html+=`<h2>Симулятор умной теплицы</h2>
-<div class="row"><label for="h">Влажность почвы</label><input id="h" type="range" min="0" max="100" value="35"><span id="hv"></span></div>
-<div class="row"><label for="tt">Температура воздуха</label><input id="tt" type="range" min="5" max="40" value="29"><span id="tv"></span></div>
-<div class="out" id="res" aria-live="polite"></div><p class="note">Правило как в скетче Arduino: полив при влажности ниже 40 %, проветривание выше 28 °C.</p>`;}
-else if(id==="s06"){const d=[["Листвянка",6.5,7.8],["Порт Байкал",6.0,7.9],["Большие Коты",8.0,7.7],["Култук",4.5,8.1],["Слюдянка",3.5,8.2]];
-html+=`<h2>Прозрачность и pH в пяти точках</h2><table><tr><th>Точка</th><th>Прозрачность (диск Секки), м</th><th></th><th>pH</th></tr>${d.map(r=>`<tr><td>${r[0]}</td><td>${r[1].toFixed(1)}</td><td style="width:35%"><div class="bar" style="width:${r[1]/8*100}%"></div></td><td>${r[2]}</td></tr>`).join("")}</table>
-<p class="out">Вывод: у посёлков с причалами прозрачность ниже — команда планирует повторить замеры летом.</p>`;}
-else if(id==="s11"){const q=[["Улица Ленина","В честь исторического деятеля","Так называют улицы в честь людей"],["Садовая улица","По садам, которые здесь были","Названия по местности — одни из самых старых"],["Улица Гагарина","В честь первого космонавта","Названия 1960-х в честь покорителей космоса"]];
-html+=`<h2>Мини-викторина «Откуда название улицы?»</h2>${q.map((r,i)=>`<div class="q"><b>${r[0]}</b> <button class="btn" onclick="this.nextElementSibling.hidden=false">Показать ответ</button><p hidden>${r[1]}. ${r[2]}.</p></div>`).join("")}`;}
-else html+=`<p>Автор ещё не загрузил продукт.</p>`;
-box.innerHTML=html;
-if(window.h){const f=()=>{hv.textContent=h.value+" %";tv.textContent=tt.value+" °C";const a=[];if(+h.value<40)a.push("💧 полив включён");if(+tt.value>28)a.push("🌬 форточка открыта");res.textContent=a.length?a.join(" · "):"✅ всё в норме, устройства выключены"};h.oninput=tt.oninput=f;f()}
-</script></body></html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Продукт проекта — ПроектоСфера</title>
+<meta name="description" content="Демонстрационный продукт проекта выставки «ПроектоСфера»: интерактивные примеры и учебные данные стендов. Показывает, как стенд ведёт к результату проекта.">
+<meta name="theme-color" content="#1b2a52">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://sirius-leto-2026.github.io/proektosfera/product.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:site_name" content="ПроектоСфера">
+<meta property="og:title" content="Продукт проекта — ПроектоСфера">
+<meta property="og:description" content="Демонстрационный продукт проекта: интерактивные примеры и учебные данные стендов выставки.">
+<meta property="og:url" content="https://sirius-leto-2026.github.io/proektosfera/product.html">
+<meta property="og:image" content="https://sirius-leto-2026.github.io/proektosfera/cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ПроектоСфера — виртуальная 3D-выставка учебных проектов">
+<link rel="stylesheet" href="css/style.css?v=6">
+<style>
+body{background:#eef3f7;margin:0}
+main{max-width:980px;margin:0 auto;padding:18px 24px}
+.box{background:#fff;border-radius:14px;padding:24px 28px;border-top:10px solid var(--c)}
+h1{color:var(--navy);margin:0 0 6px}
+h2{color:var(--navy);font-size:21px;margin:22px 0 8px}
+.row{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;margin:14px 0}
+.row label{grid-column:1;grid-row:1;color:var(--ink)}
+.row span{grid-column:2;grid-row:1;font-weight:700;color:var(--navy)}
+.row input[type=range]{grid-column:1/-1;grid-row:2;width:100%}
+.out{font-size:20px;font-weight:700;color:var(--navy);margin-top:14px}
+.table-wrap{overflow-x:auto;margin-top:8px}
+table{border-collapse:collapse;width:100%;min-width:460px}
+caption{text-align:left;color:var(--muted);font-size:13px;padding-bottom:6px}
+td,th{border-bottom:1px solid #dbe3ea;padding:7px;text-align:left;font-size:14px}
+.bar{height:14px;background:var(--c);border-radius:3px}
+.q button{display:block;margin:6px 0}
+.note{color:var(--muted);font-size:14px;line-height:1.5;margin-top:10px}
+@media (max-width:680px){
+  main{padding:12px}
+  .box{padding:18px 16px}
+  .out{font-size:17px}
+  table{min-width:0}
+  td,th{padding:5px 4px;font-size:13px}
+}
+</style>
+</head>
+<body data-mode="info">
+<main>
+  <div class="box" id="box"></div>
+  <p class="note" id="note">Демо-продукт: показывает, как стенд может вести на работающий результат проекта. Данные учебные, не измерения.</p>
+</main>
+<script src="data/stands.js?v=6"></script>
+<script>
+(function () {
+  const id = new URLSearchParams(location.search).get("id");
+  const stand = id ? STANDS.find(x => x.id === id) : null;
+  const box = document.getElementById("box"), note = document.getElementById("note");
+
+  if (!stand) {
+    document.title = "Стенд не найден — ПроектоСфера";
+    box.innerHTML = `<h1>Стенд не найден</h1>
+      <p>В ссылке нет номера стенда или такого стенда нет на выставке. Откройте карточку из каталога — там все стенды списком.</p>
+      <p><a class="btn" href="catalog.html">Каталог стендов</a> <a class="btn" href="index.html">3D-павильон</a></p>`;
+    note.hidden = true;
+    return;
+  }
+
+  box.style.setProperty("--c", stand.color);
+  document.title = stand.title + " — продукт";
+  let html = `<h1>${stand.title}</h1><p class="note">${stand.team} · ${stand.school}</p>`;
+
+  if (stand.id === "s01") {
+    html += `<h2>Симулятор умной теплицы</h2>
+      <div class="row"><label for="hum">Влажность почвы</label><input id="hum" type="range" min="0" max="100" value="35"><span id="humv"></span></div>
+      <div class="row"><label for="temp">Температура воздуха</label><input id="temp" type="range" min="5" max="40" value="29"><span id="tempv"></span></div>
+      <div class="out" id="res" aria-live="polite"></div>
+      <p class="note">Правило как в скетче Arduino: полив при влажности ниже 40 %, проветривание выше 28 °C.</p>`;
+  } else if (stand.id === "s06") {
+    const d = [["Листвянка", 6.5, 7.8], ["Порт Байкал", 6.0, 7.9], ["Большие Коты", 8.0, 7.7], ["Култук", 4.5, 8.1], ["Слюдянка", 3.5, 8.2]];
+    html += `<h2>Прозрачность и pH в пяти точках</h2>
+      <div class="table-wrap"><table>
+        <caption>Учебные данные, не измерения.</caption>
+        <thead><tr><th scope="col">Точка</th><th scope="col">Прозрачность (диск Секки), м</th><th scope="col">Шкала</th><th scope="col">pH</th></tr></thead>
+        <tbody>${d.map(r => `<tr><td>${r[0]}</td><td>${r[1].toFixed(1)}</td><td style="width:35%"><div class="bar" style="width:${r[1] / 8 * 100}%" role="img" aria-label="Прозрачность ${r[1].toFixed(1)} из 8 метров"></div></td><td>${r[2]}</td></tr>`).join("")}</tbody>
+      </table></div>
+      <p class="out">Вывод: у посёлков с причалами прозрачность ниже — команда планирует повторить замеры летом.</p>`;
+  } else if (stand.id === "s11") {
+    const q = [["Улица Ленина", "В честь исторического деятеля", "Так называют улицы в честь людей"], ["Садовая улица", "По садам, которые здесь были", "Названия по местности — одни из самых старых"], ["Улица Гагарина", "В честь первого космонавта", "Названия 1960-х в честь покорителей космоса"]];
+    html += `<h2>Мини-викторина «Откуда название улицы?»</h2>
+      ${q.map(r => `<div class="q"><b>${r[0]}</b> <button class="btn" type="button" aria-expanded="false" onclick="const p=this.nextElementSibling;p.hidden=!p.hidden;this.setAttribute('aria-expanded',String(!p.hidden));this.textContent=p.hidden?'Показать ответ':'Скрыть ответ'">Показать ответ</button><p hidden>${r[1]}. ${r[2]}.</p></div>`).join("")}`;
+  } else {
+    html += `<p>Автор ещё не загрузил продукт.</p>`;
+  }
+
+  note.innerHTML += `<br><a href="index.html#stand=${encodeURIComponent(stand.id)}">← К стенду на выставке</a> · <a href="catalog.html">Каталог</a> · <a href="privacy.html">Правила</a>`;
+  box.innerHTML = html;
+
+  const hum = document.getElementById("hum");
+  if (hum) {
+    const temp = document.getElementById("temp"), humv = document.getElementById("humv");
+    const tempv = document.getElementById("tempv"), out = document.getElementById("res");
+    const update = () => {
+      humv.textContent = hum.value + " %";
+      tempv.textContent = temp.value + " °C";
+      const a = [];
+      if (+hum.value < 40) a.push("💧 полив включён");
+      if (+temp.value > 28) a.push("🌬 форточка открыта");
+      out.textContent = a.length ? a.join(" · ") : "✅ всё в норме, устройства выключены";
+    };
+    hum.oninput = temp.oninput = update;
+    update();
+  }
+})();
+</script>
+</body>
+</html>
