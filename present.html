@@ -58,9 +58,19 @@ body{background:#eef3f7;margin:0}
   const pg = document.getElementById("pg"), note = document.getElementById("note"), nav = document.getElementById("nav");
 
   if (!stand) {
+    // Без ?id — не ошибка, а выбор стенда: страницу могут открыть по прямому адресу.
+    if (!id) {
+      document.title = "Презентации стендов — ПроектоСфера";
+      sl.innerHTML = `<h1>Презентации стендов</h1>
+        <p>Выберите стенд — покажу демонстрационную презентацию, собранную из его карточки.</p>
+        <p>${STANDS.map(s => `<a href="present.html?id=${encodeURIComponent(s.id)}">${s.title}</a>`).join(" · ")}</p>
+        <p><a class="btn" href="catalog.html">Каталог стендов</a> <a class="btn" href="index.html">3D-павильон</a></p>`;
+      nav.hidden = true;
+      return;
+    }
     document.title = "Стенд не найден — ПроектоСфера";
     sl.innerHTML = `<h1>Стенд не найден</h1>
-      <p>В ссылке нет номера стенда или такого стенда нет на выставке. Откройте карточку из каталога — там все стенды списком.</p>
+      <p>Такого стенда нет на выставке. Откройте карточку из каталога — там все стенды списком.</p>
       <p><a class="btn" href="catalog.html">Каталог стендов</a> <a class="btn" href="index.html">3D-павильон</a></p>`;
     nav.hidden = true;
     note.hidden = true;
