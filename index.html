@@ -52,7 +52,7 @@
   <button data-m="right" type="button" aria-label="Повернуть направо">⟳</button>
 </div>
 <div class="panel help">
-  <span class="desk">WASD/стрелки — ходить, мышь с зажатой кнопкой — смотреть, клик по стенду — открыть. На телефоне — кнопки внизу и свайп.<br><a href="privacy.html">Правила и конфиденциальность</a></span>
+  <span class="desk">WASD/стрелки — идти, Q/E — повернуться, Shift — быстрее, мышь с зажатой кнопкой — осмотреться, клик по стенду — открыть. На телефоне — кнопки внизу и свайп.<br><a href="privacy.html">Правила и конфиденциальность</a></span>
   <span class="mob">Кнопки внизу — идти и поворачиваться, свайп по сцене — осмотреться. Нажмите на стенд, чтобы открыть карточку. <a href="privacy.html">Правила</a></span>
 </div>
 
@@ -64,7 +64,7 @@
   <a-entity light="type: directional; intensity: 1.9" position="2 6 3"></a-entity>
   <a-entity id="world"></a-entity>
   <a-entity id="rig" position="0 0 6">
-    <a-entity id="cam" camera look-controls="pointerLockEnabled: false" wasd-controls="acceleration: 45" position="0 1.6 0"></a-entity>
+    <a-entity id="cam" camera look-controls="pointerLockEnabled: false" wasd-controls="acceleration: 0" position="0 1.6 0"></a-entity>
   </a-entity>
 </a-scene>
 
@@ -193,10 +193,57 @@ sceneEl.addEventListener("loaded", () => {
   // Сцену можно выбрать клавишей Tab и ходить с клавиатуры.
   if (sceneEl.canvas) {
     sceneEl.canvas.tabIndex = 0;
-    sceneEl.canvas.setAttribute("aria-label", "3D-павильон. WASD или стрелки — движение, мышь — обзор. Список стендов доступен по ссылке «Перейти к списку стендов».");
+    sceneEl.canvas.setAttribute("aria-label", "3D-павильон. WASD или стрелки — идти, Q и E — поворачиваться, Shift — быстрее. Список стендов доступен по ссылке «Перейти к списку стендов».");
   }
   drawMini();
 });
+
+// ---------- ходьба с клавиатуры ----------
+// Встроенный wasd-controls на схеме «acceleration: 45» разгонялся до ~8 м/с (30 км/ч):
+// камера за секунду пролетала зал и уходила сквозь стены в пустоту. Поэтому движение
+// считаем сами: ровный шаг 2,2 м/с (Shift — 4,2), поворот Q/E и границы павильона.
+(() => {
+  const rigEl = document.getElementById("rig");
+  const WALK = 2.2, RUN = 4.2, TURN = 1.9;
+  const MIN_X = -HALL_W / 2 + 0.6, MAX_X = hallX(HALLS.length - 1) + HALL_W / 2 - 0.6;
+  const MIN_Z = -HALL_D / 2 + 0.6, MAX_Z = HALL_D / 2 + 0.3;
+  const MOVE_KEYS = /^(KeyW|KeyA|KeyS|KeyD|KeyQ|KeyE|ArrowUp|ArrowDown|ArrowLeft|ArrowRight|ShiftLeft|ShiftRight)$/;
+  const isTyping = (t) => !!t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable);
+  const held = new Set();                       // состояние клавиш ведём сами: A-Frame знает только WASD/стрелки
+  let last = performance.now();
+
+  function step(now) {
+    requestAnimationFrame(step);
+    const dt = Math.min((now - last) / 1000, 0.1);
+    last = now;
+    const look = cam.components && cam.components["look-controls"];
+    if (!look || document.body.classList.contains("modal-open")) return;
+    const f = ((held.has("KeyW") || held.has("ArrowUp")) ? 1 : 0) - ((held.has("KeyS") || held.has("ArrowDown")) ? 1 : 0);
+    const s = ((held.has("KeyD") || held.has("ArrowRight")) ? 1 : 0) - ((held.has("KeyA") || held.has("ArrowLeft")) ? 1 : 0);
+    const turn = (held.has("KeyE") ? 1 : 0) - (held.has("KeyQ") ? 1 : 0);
+    if (turn) look.yawObject.rotation.y += turn * TURN * dt;
+    if (!f && !s) return;
+    const len = Math.hypot(f, s) || 1;
+    const speed = (held.has("ShiftLeft") || held.has("ShiftRight")) ? RUN : WALK;
+    const y = look.yawObject.rotation.y;
+    const dx = (-Math.sin(y) * f + Math.cos(y) * s) / len * speed * dt;
+    const dz = (-Math.cos(y) * f - Math.sin(y) * s) / len * speed * dt;
+    const p = rigEl.object3D.position;
+    p.x = Math.min(MAX_X, Math.max(MIN_X, p.x + dx));
+    p.z = Math.min(MAX_Z, Math.max(MIN_Z, p.z + dz));
+  }
+  requestAnimationFrame(step);
+
+  // Стрелки и WASD не должны прокручивать страницу и не должны мешать вводу в поиске.
+  document.addEventListener("keydown", (e) => {
+    if (!MOVE_KEYS.test(e.code) || isTyping(e.target) || document.body.classList.contains("modal-open")) return;
+    e.preventDefault();
+    held.add(e.code);
+  }, { passive: false });
+  document.addEventListener("keyup", (e) => { held.delete(e.code); });
+  window.addEventListener("blur", () => held.clear());
+  document.addEventListener("visibilitychange", () => { if (document.hidden) held.clear(); });
+})();
 </script>
 </body>
 </html>
